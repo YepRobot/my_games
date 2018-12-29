@@ -65,6 +65,7 @@ class DoublePlayerGame(QWidget):
     backSignal = pyqtSignal()  # 返回按钮
     startSignal = pyqtSignal()  # 开始按钮
     undoSignal = pyqtSignal()  #  悔棋按钮
+    ggSignal = pyqtSignal()  #认输按钮
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -116,6 +117,7 @@ class DoublePlayerGame(QWidget):
         # 绑定开始按钮信号和槽函数
         self.start_game.clicked.connect(self.goStart)
         self.undo_play.clicked.connect(self.goUndo)
+        self.gg.clicked.connect(self.goGG)
 
     def goBack(self):
         self.backSignal.emit()
@@ -124,15 +126,29 @@ class DoublePlayerGame(QWidget):
         self.close()
 
     def goUndo(self):
+
         print('悔棋')
         m=self.history_chess.pop()
         m.close()
-        self.chess_map[m.map_point_x][m.map_point_y]=None
+        self.chess_map[m.map_point_x][m.map_point_y] = None
         if self.color_flag==1:
             self.color_flag=0
         else:
             self.color_flag=1
 
+    def goGG(self):
+        if self.color_flag==0:
+            print("黑棋认输，白棋胜")
+            self.win_lbl=WinLabel(color='white',parent=self)
+            self.win_lbl.move(100, 100)
+            self.win_lbl.show()
+            self.st_over=True
+        else:
+            print("白棋认输 黑棋胜")
+            self.win_lbl = WinLabel(color='black', parent=self)
+            self.win_lbl.move(100, 100)
+            self.win_lbl.show()
+            self.st_over = True
 
 
 
@@ -176,15 +192,15 @@ class DoublePlayerGame(QWidget):
 
         if self.whoIsWiner(self.chessman)==True:
             if self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y]==0:
-                winw_lbl=WinLabel(color='white',parent=self)
-                winw_lbl.move(100,100)
+                self.win_lbl=WinLabel(color='white',parent=self)
+                self.win_lbl.move(100,100)
                 print('白棋 胜利')
-                winw_lbl.show()
+                self.win_lbl.show()
                 self.st_over=True
             elif self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y]==1:
-                winb_lbl=WinLabel(color='black',parent=self)
-                winb_lbl.move(100,100)
-                winb_lbl.show()
+                self.win_lbl=WinLabel(color='black',parent=self)
+                self.win_lbl.move(100,100)
+                self.win_lbl.show()
                 print('黑棋 胜利')
                 self.st_over = True
 
