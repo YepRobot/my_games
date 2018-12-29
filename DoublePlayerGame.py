@@ -22,6 +22,7 @@ class Chessman(QLabel):
         self.setPixmap(self.pic)
         self.setFixedSize(self.pic.size())
 
+
     def move(self, a0: QtCore.QPoint):
 
         self.x, self.y = self.adjust_point(a0)
@@ -63,6 +64,7 @@ class WinLabel(QLabel):
 class DoublePlayerGame(QWidget):
     backSignal = pyqtSignal()  # 返回按钮
     startSignal = pyqtSignal()  # 开始按钮
+    undoSignal = pyqtSignal()  #  悔棋按钮
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -73,7 +75,11 @@ class DoublePlayerGame(QWidget):
         self.color_flag = 0
 
         self.chess_map = [[None] * 19 for _ in range(19)]
-        self.st_flag=True
+        self.st_over=False
+        self.history_chess=[]
+
+
+
 
         #  绘制背景图
 
@@ -109,12 +115,26 @@ class DoublePlayerGame(QWidget):
 
         # 绑定开始按钮信号和槽函数
         self.start_game.clicked.connect(self.goStart)
+        self.undo_play.clicked.connect(self.goUndo)
 
     def goBack(self):
         self.backSignal.emit()
     def goStart(self):
         self.startSignal.emit()
         self.close()
+
+    def goUndo(self):
+        print('悔棋')
+        m=self.history_chess.pop()
+        m.close()
+        self.chess_map[m.map_point_x][m.map_point_y]=None
+        if self.color_flag==1:
+            self.color_flag=0
+        else:
+            self.color_flag=1
+
+
+
 
 
     def mouseReleaseEvent(self, a0: QtGui.QMouseEvent):
@@ -134,7 +154,7 @@ class DoublePlayerGame(QWidget):
             self.chessman = Chessman(color='white', parent=self)
             self.color_flag = 0
         pos = self.reversePos(a0.pos())
-        if self.st_flag==False:
+        if self.st_over==True:
             return
         if pos == None:
             return
@@ -152,6 +172,7 @@ class DoublePlayerGame(QWidget):
         self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.color_flag
 
         self.chessman.show()
+        self.history_chess.append(self.chessman)
 
         if self.whoIsWiner(self.chessman)==True:
             if self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y]==0:
@@ -159,13 +180,13 @@ class DoublePlayerGame(QWidget):
                 winw_lbl.move(100,100)
                 print('白棋 胜利')
                 winw_lbl.show()
-                self.st_flag=False
+                self.st_over=True
             elif self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y]==1:
                 winb_lbl=WinLabel(color='black',parent=self)
                 winb_lbl.move(100,100)
                 winb_lbl.show()
                 print('黑棋 胜利')
-                self.st_flag = False
+                self.st_over = True
 
         print(self.chess_map)
 
