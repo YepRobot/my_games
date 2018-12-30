@@ -89,6 +89,7 @@ class DoublePlayerGame(QWidget):
         p.setBrush(QPalette.Background, brush)  # 设置调色板的背景色
 
         self.setPalette(p)  # 给窗口设置调色板
+        self.move(300, 30)  # 窗口移动到中心
 
         self.return_to_main = MyButton('source/返回按钮_hover.png',
                                        'source/返回按钮_normal.png',
@@ -126,15 +127,19 @@ class DoublePlayerGame(QWidget):
         self.close()
 
     def goUndo(self):
+        try:
+            if self.st_over != True:
 
-        print('悔棋')
-        m=self.history_chess.pop()
-        m.close()
-        self.chess_map[m.map_point_x][m.map_point_y] = None
-        if self.color_flag==1:
-            self.color_flag=0
-        else:
-            self.color_flag=1
+                print('悔棋')
+                m=self.history_chess.pop()
+                m.close()
+                self.chess_map[m.map_point_x][m.map_point_y] = None
+                if self.color_flag==1:
+                    self.color_flag=0
+                else:
+                    self.color_flag=1
+        except Exception as e:
+            print(e)
 
     def goGG(self):
         if self.color_flag==0:

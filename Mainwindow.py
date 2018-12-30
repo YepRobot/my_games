@@ -21,6 +21,7 @@ class MainWindow(QWidget):
         brush = QBrush(QImage('source/五子棋界面.png'))  # 画刷
         p.setBrush(QPalette.Background, brush)  # 设置调色板的背景色
         self.setPalette(p)  # 给窗口设置调色板
+        self.move(300, 30)  # 窗口移动到中心
 
         self.btn1 = MyButton('source/人机对战_hover.png',
                              'source/人机对战_normal.png',
