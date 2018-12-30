@@ -23,14 +23,17 @@ class Chessman(QLabel):
         self.setFixedSize(self.pic.size())
 
 
-    def move(self, a0: QtCore.QPoint):
+    def move(self, pos_x,pos_y):
 
-        self.x, self.y = self.adjust_point(a0)
+        self.x, self.y = self.adjust_point(pos_x,pos_y)
         super().move(self.x - 15, self.y - 15)
 
-    def adjust_point(self, pos):
-        pos_x = pos.x()
-        pos_y = pos.y()
+
+
+
+
+    def adjust_point(self, pos_x,pos_y):
+
         true_point = []
 
         for i in range(50, 50 + 18 * 30 + 1, 30):
@@ -198,7 +201,9 @@ class DoublePlayerGame(QWidget):
             return
         if pos == None:
             return
-        self.chessman.move(pos)
+        pos_x = pos.x()
+        pos_y = pos.y()
+        self.chessman.move(pos_x,pos_y)
         self.chessman.map_point_x = (self.chessman.y - 50) // 30
         self.chessman.map_point_y = (self.chessman.x - 50) // 30
         #      此时:0是白色
