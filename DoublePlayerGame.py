@@ -79,6 +79,13 @@ class DoublePlayerGame(QWidget):
         self.st_over=False
         self.history_chess=[]
 
+        # 棋手标识
+        self.player = QLabel(self)
+        self.player.pic = QPixmap('source/黑手.png')
+        self.player.setPixmap(self.player.pic)
+        self.player.setFixedSize(self.player.pic.size())
+        self.player.move(700, 580)
+        self.player.show()
 
 
 
@@ -167,13 +174,23 @@ class DoublePlayerGame(QWidget):
         # mychessman.move(a0.pos())
         # mychessman.show()
 
+
+
         if self.color_flag == 0:
+
+
+
             self.chessman = Chessman(color='black', parent=self)
 
             self.color_flag = 1
         else:
+
+
             self.chessman = Chessman(color='white', parent=self)
             self.color_flag = 0
+
+
+
         pos = self.reversePos(a0.pos())
         if self.st_over==True:
             return
@@ -193,6 +210,16 @@ class DoublePlayerGame(QWidget):
         self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.color_flag
 
         self.chessman.show()
+
+        if self.color_flag == 1:
+            self.player.pic = QPixmap('source/白手.png')
+        else:
+            self.player.pic = QPixmap('source/黑手.png')
+        self.player.setPixmap(self.player.pic)
+        self.player.setFixedSize(self.player.pic.size())
+        self.player.move(700, 580)
+        self.player.show()
+
         self.history_chess.append(self.chessman)
 
         if self.whoIsWiner(self.chessman)==True:
