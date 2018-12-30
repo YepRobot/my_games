@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from my_games.MyButton import MyButton
 from my_games.DoublePlayerGame import DoublePlayerGame
+from my_games.SinglePlayerGame import SinglePlayerGame
 import sys
 
 
@@ -39,6 +40,7 @@ class MainWindow(QWidget):
         self.btn3.move(270, 450)
 
         self.btn2.clicked.connect(self.startDoubleGame)
+        self.btn1.clicked.connect(self.startSingleGame)
 
     def startDoubleGame(self):
         #  构建双人对战游戏的界面
@@ -48,9 +50,27 @@ class MainWindow(QWidget):
         self.double_player_game.show()
         self.close()
 
+    def startSingleGame(self):
+        self.single_player_game = SinglePlayerGame()
+        self.single_player_game.backSignal.connect(self.showMain)
+        self.single_player_game.startSignal.connect(self.startSingleGame)
+        self.single_player_game.show()
+        self.close()
+
+
     def showMain(self):
-        self.show()
-        self.double_player_game.close()
+        try:
+            self.show()
+            self.double_player_game.close()
+        except Exception as e:
+            print(e)
+        try:
+            self.show()
+            self.single_player_game.close()
+        except Exception as e:
+            print(e)
+
+
 
 
 if __name__ == '__main__':
