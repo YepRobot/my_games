@@ -185,15 +185,9 @@ class DoublePlayerGame(QWidget):
 
 
         if self.color_flag == 0:
-
-
-
             self.chessman = Chessman(color='black', parent=self)
-
             self.color_flag = 1
         else:
-
-
             self.chessman = Chessman(color='white', parent=self)
             self.color_flag = 0
 
@@ -426,6 +420,7 @@ class DoublePlayerGame(QWidget):
                 return True
         except Exception:
             print("error")
+
 
 if __name__ == '__main__':
     import cgitb

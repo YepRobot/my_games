@@ -126,6 +126,11 @@ class SinglePlayerGame(QWidget):
             self.win_lbl.show()
             self.st_over = True
 
+    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent):
+        print(a0.pos())
+        print('x:', a0.x())
+        print('y', a0.y())
+
 
 
 if __name__ == '__main__':
