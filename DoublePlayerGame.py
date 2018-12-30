@@ -145,6 +145,14 @@ class DoublePlayerGame(QWidget):
                     self.color_flag=0
                 else:
                     self.color_flag=1
+                if self.color_flag == 1:
+                    self.player.pic = QPixmap('source/白手.png')
+                else:
+                    self.player.pic = QPixmap('source/黑手.png')
+                self.player.setPixmap(self.player.pic)
+                self.player.setFixedSize(self.player.pic.size())
+                self.player.move(700, 580)
+                self.player.show()
         except Exception as e:
             print(e)
 
