@@ -254,7 +254,7 @@ class DoublePlayerGame(QWidget):
         self.player.show()
 
         self.history_chess.append(self.chessman)
-
+        print(self.chessman.color)
         self.showWin()
 
 

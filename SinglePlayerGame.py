@@ -184,12 +184,13 @@ class SinglePlayerGame(QWidget):
 
         self.history_chess.append(self.chessman)
         self.showWin()
-        self.machinePlay()
+        self.autoDown()
+        self.showWin()
 
 
         print(self.chessman.color)
         print(self.color_flag)
-        self.showWin()
+
 
         print(self.chess_map)
 
@@ -383,158 +384,406 @@ class SinglePlayerGame(QWidget):
         except Exception:
             print("error")
 
-    def machinePlay(self):
-        while True:
-            if self.color_flag == 0:
-                self.chessman = Chessman(color='black', parent=self)
-                self.color_flag = 1
-            else:
-                self.chessman = Chessman(color='white', parent=self)
-                self.color_flag = 0
-            m_x = random.randint(50, 50 + 18 * 30 + 1)
-            m_y = random.randint(50, 50 + 18 * 30 + 1)
-            self.chessman.x, self.chessman.y = self.chessman.adjust_point(m_x, m_y)
-            self.chessman.map_point_x = (self.chessman.y - 50) // 30
-            self.chessman.map_point_y = (self.chessman.x - 50) // 30
-            if self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] == None:
-                self.chessman.move(m_x, m_y)
-                self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.color_flag
-                self.chessman.show()
-                # 显示标识
-                self.focus_Point.move(m_x, m_y)
-                self.focus_Point.show()
-                self.focus_Point.raise_()
 
-                self.history_chess.append(self.chessman)
-                print(self.color_flag)
-                return
+
+
+
+
+
+    def getPointScore(self, x, y, color):
+        '''
+        返回每个点的得分
+        y:行坐标
+        x:列坐标
+        color：棋子颜色
+        :return:
+        '''
+        # 分别计算点周围5子以内，空白、和同色的分数
+        blank_score = 0
+        color_score = 0
+
+        # 记录每个方向的棋子分数
+        blank_score_plus = [0, 0, 0, 0]  # 横向 纵向 正斜线 反斜线
+        color_score_plus = [0, 0, 0, 0]
+
+        # 横线
+        # 右侧
+        i = x  # 横坐标
+        j = y  # 纵坐标
+        while i < 19:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[0] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[0] += 1
             else:
-                if self.color_flag == 1:
-                    self.color_flag = 0
+                break
+            if i >= x + 4:
+                break
+            i += 1
+        # print('123123')
+        # 左侧
+        i = x  # 横坐标
+        j = y  # 纵坐标
+        while i >= 0:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[0] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[0] += 1
+            else:
+                break
+            if i <= x - 4:
+                break
+            i -= 1
+
+        # 竖线
+        # 上方
+        i = x  # 横坐标
+        j = y  # 纵坐标
+        while j >= 0:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[1] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[1] += 1
+            else:
+                break
+            if j <= y - 4:
+                break
+            j -= 1
+        # 竖线
+        # 下方
+        i = x  # 横坐标
+        j = y  # 纵坐标
+        while j < 19:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[1] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[1] += 1
+            else:
+                break
+
+            if j >= y + 4:  # 最近五个点
+                break
+            j += 1
+        # 正斜线
+        # 右上
+        i = x
+        j = y
+        while i < 19 and j >= 0:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[2] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[2] += 1
+            else:
+                break
+
+            if i >= x + 4:  # 最近五个点
+                break
+            i += 1
+            j -= 1
+        # 左下
+        i = x
+        j = y
+        while j < 19 and i >= 0:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[2] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[2] += 1
+            else:
+                break
+
+            if j >= y + 4:  # 最近五个点
+                break
+            i -= 1
+            j += 1
+        # 反斜线
+        # 左上
+        i = x
+        j = y
+        while i >= 0 and j >= 0:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[3] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[3] += 1
+            else:
+                break
+            if i <= x - 4:
+                break
+            i -= 1
+            j -= 1
+        # 右上
+        i = x
+        j = y
+        while i < 19 and j < 19:
+            if self.chess_map[j][i] is None:
+                blank_score += 1
+                blank_score_plus[3] += 1
+                break
+            elif self.chess_map[j][i].color == color:
+                color_score += 1
+                color_score_plus[3] += 1
+            else:
+                break
+            if i >= x + 4:
+                break
+            i += 1
+            j += 1
+
+        for k in range(4):
+            if color_score_plus[k] >= 5:
+                return 100
+
+        # color_score *= 5
+        return max([x + y for x, y in zip(color_score_plus, blank_score_plus)])
+
+
+
+    def getPoint(self):
+        '''
+        返回落子位置
+        :return:
+        '''
+        # 简单实现：返回一个空白交点
+        # for i in range(19):
+        #     for j in range(19):
+        #         if self.chess_map[i][j] == None:
+        #             return QPoint(j, i)
+        #
+        #  没有找到合适的点
+        white_score = [[0 for i in range(19)] for j in range(19)]
+        black_score = [[0 for i in range(19)] for j in range(19)]
+
+        for i in range(19):
+            for j in range(19):
+                if self.chess_map[i][j] != None:
+                    continue
+                # 模拟落子
+                self.chess_map[i][j] = Chessman(color='white', parent=self)
+                white_score[i][j] = self.getPointScore(j, i, 'white')
+                self.chess_map[i][j].close()
+                self.chess_map[i][j] = None
+                self.chess_map[i][j] = Chessman(color='black', parent=self)
+                black_score[i][j] = self.getPointScore(j, i, 'black')
+                self.chess_map[i][j].close()
+                self.chess_map[i][j] = None
+
+        print('----------------')
+        # 将二维坐标转换成以为进行计算
+        r_white_score = []
+        r_black_score = []
+        for i in white_score:
+            r_white_score.extend(i)
+        for i in black_score:
+            r_black_score.extend(i)
+
+        # 找到分数最大值
+        score = [max(x, y) for x, y in zip(r_white_score, r_black_score)]
+
+        # 找到分数做大的下标
+        chess_index = score.index(max(score))
+
+        print(score, '\n', max(score))
+
+        y = chess_index // 19
+        x = chess_index % 19
+
+        return QPoint(x, y)
+    
+    def autoDown(self):
+        '''
+        自动落子
+        :return:
+        '''
+        point = self.getPoint()
+
+        # 注意：x,y坐标对应
+        chess_index = (point.y(), point.x())  # 棋子在棋盘中的下标
+        pos = QPoint(50+point.x()*30, 50+point.y()*30) # 棋子在棋盘中的坐标
+        pos_x = pos.x()
+        pos_y = pos.y()
+
+        self.chessman = Chessman(color=self.color_flag, parent=self)
+        #self.chessman.setIndex(chess_index[1], chess_index[0])
+        self.chessman.move(pos_x,pos_y)
+        self.chessman.show()  # 显示棋子
+
+        # 显示标识
+        self.focus_Point.move(pos_x,pos_y)
+        self.focus_Point.show()
+        self.focus_Point.raise_()
+
+
+        self.chessman.map_point_x=chess_index[0]
+        self.chessman.map_point_y=chess_index[1]
+        print("zheshi"+str(self.chessman.map_point_x)+str(self.chessman.map_point_y))
+
+        if self.chessman.color==0:
+            self.chessman.color='black'
+        else:
+            self.chessman.color='white'
+
+        self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.chessman
+
+        # 历史记录
+        self.history_chess.append(self.chessman)
+
+        # 改变落子颜色
+        if self.color_flag == 0:
+            self.color_flag = 1
+        else:
+            self.color_flag = 0
+        # 判断输赢
+
+
+
+    def score(self,x,y,color):
+        blank_score = [0,0,0,0]
+        chess_score = [0,0,0,0]
+
+        # 右方向
+        for i in range(x,x+5):
+            if i >= 19:
+                break
+            if self.chess_map[i][y] is not None:
+                if self.chess_map[i][y].color==color:
+                    chess_score[0] +=1
                 else:
-                    self.color_flag = 1
+                    break
+
+            else:
+                blank_score[0]+=1
+                break
+
+        # 左方向
+        for i in range(x-1,x-5,-1):
+            if i <=0:
+                break
+            if self.chess_map[i][y] is not None:
+                if self.chess_map[i][y].color ==color:
+                    chess_score[0] += 1
+                else:
+                    break
+            else:
+                blank_score[0] += 1
+                break
+
+        # 下方向
+        for j in range(y, y+5):
+            if j >= 19:
+                break
+            if self.chess_map[x][j] is not None:
+                if self.chess_map[x][j].color == color:
+                    chess_score[0] += 1
+                else:
+                    break
+            else:
+                blank_score[0] += 1
+                break
+
+        # 上方向
+        for i in range(y- 1, y - 5, -1):
+            if i <= 0:
+                break
+            if self.chess_map[x][j] is not None:
+                if self.chess_map[x][j].color == color:
+                    chess_score[1] += 1
+                else:
+                    break
+            else:
+                blank_score[1] += 1
+                break
+
+        # 右下
+        for i in range(x,x+5):
+            if i >= 19 or j>=19:
+                break
+            if self.chess_map[i][j] is not None:
+                if self.chess_map[i][j].color==color:
+                    chess_score[2] +=1
+                else:
+                    break
+
+            else:
+                blank_score[2]+=1
+                break
+
+            j += 1
+
+        # 左上
+        for i in range(x-1,x-5,-1):
+            if i <=0 or j<=0:
+                break
+            if self.chess_map[i][j] is not None:
+                if self.chess_map[i][j].color ==color:
+                    chess_score[2] += 1
+                else:
+                    break
+            else:
+                blank_score[2] += 1
+                break
 
 
-    # def goal_comput(self,chessman):
-    #
-    #
-    #     x = chessman.map_point_x
-    #     y = chessman.map_point_y
-    #     # 横向
-    #     try:
-    #         list_chess = [self.chess_map[x][y], self.chess_map[x][y + 1], self.chess_map[x][y + 2],
-    #                       self.chess_map[x][y + 3], self.chess_map[x][y + 4]]
-    #         goal =list_chess.count(self.color_flag)
-    #         self.machine_goal.append(goal)
-    #     except Exception as e:
-    #         print(e)
-    #     try:
-    #         list_chess = [self.chess_map[x][y], self.chess_map[x][y + 1], self.chess_map[x][y + 2],
-    #                       self.chess_map[x][y + 3], self.chess_map[x][y - 1]]
-    #         if len(set(list_chess)) == 1:
-    #             return True
-    #     except Exception:
-    #         print("error")
-    #     try:
-    #         list_chess = [self.chess_map[x][y], self.chess_map[x][y + 1], self.chess_map[x][y + 2],
-    #                       self.chess_map[x][y - 1], self.chess_map[x][y - 2]]
-    #         goal = list_chess.count(self.color_flag)
-    #         self.machine_goal.append(goal)
-    #     except Exception as e:
-    #         print(e)
-    #     try:
-    #         list_chess = [self.chess_map[x][y], self.chess_map[x][y + 1], self.chess_map[x][y - 1],
-    #                       self.chess_map[x][y - 2], self.chess_map[x][y - 3]]
-    #         goal = list_chess.count(self.color_flag)
-    #         self.machine_goal.append(goal)
-    #     except Exception as e:
-    #         print(e)
-    #     try:
-    #         list_chess = [self.chess_map[x][y], self.chess_map[x][y - 1], self.chess_map[x][y - 2],
-    #                       self.chess_map[x][y - 3], self.chess_map[x][y - 4]]
-    #         goal = list_chess.count(self.color_flag)
-    #         self.machine_goal.append(goal)
-    #     except Exception as e:
-    #         print(e)
-    #
-    #         # 竖向-----------------------------------------------------------------------------------------
-    #         try:
-    #             list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y], self.chess_map[x + 2][y],
-    #                           self.chess_map[x + 3][y], self.chess_map[x + 4][y]]
-    #             goal = list_chess.count(self.color_flag)
-    #             self.machine_goal.append(goal)
-    #         except Exception as e:
-    #             print(e)
-    #         try:
-    #             list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y], self.chess_map[x + 2][y],
-    #                           self.chess_map[x + 3][y], self.chess_map[x - 1][y]]
-    #             goal = list_chess.count(self.color_flag)
-    #             self.machine_goal.append(goal)
-    #         except Exception as e:
-    #             print(e)
-    #         try:
-    #             list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y], self.chess_map[x + 2][y],
-    #                           self.chess_map[x - 1][y], self.chess_map[x - 2][y]]
-    #             goal = list_chess.count(self.color_flag)
-    #             self.machine_goal.append(goal)
-    #         except Exception as e:
-    #             print(e)
-    #         try:
-    #             list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y], self.chess_map[x - 1][y],
-    #                           self.chess_map[x - 2][y], self.chess_map[x - 3][y]]
-    #             goal = list_chess.count(self.color_flag)
-    #             self.machine_goal.append(goal)
-    #         except Exception as e:
-    #             print(e)
-    #
-    #         try:
-    #             list_chess = [self.chess_map[x][y], self.chess_map[x - 1][y], self.chess_map[x - 2][y],
-    #                           self.chess_map[x - 3][y], self.chess_map[x - 4][y]]
-    #             goal = list_chess.count(self.color_flag)
-    #             self.machine_goal.append(goal)
-    #         except Exception as e:
-    #             print(e)
-    #
-    #             # 斜降--------------------------------------------------------------------------------------------------------------
-    #             try:
-    #                 list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y + 1], self.chess_map[x + 2][y + 2],
-    #                               self.chess_map[x + 3][y + 3], self.chess_map[x + 4][y + 4]]
-    #                 goal = list_chess.count(self.color_flag)
-    #                 self.machine_goal.append(goal)
-    #             except Exception as e:
-    #                 print(e)
-    #             try:
-    #                 list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y + 1], self.chess_map[x + 2][y + 2],
-    #                               self.chess_map[x + 3][y + 3], self.chess_map[x - 1][y - 1]]
-    #                 goal = list_chess.count(self.color_flag)
-    #                 self.machine_goal.append(goal)
-    #             except Exception as e:
-    #                 print(e)
-    #             try:
-    #                 list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y + 1], self.chess_map[x + 2][y + 2],
-    #                               self.chess_map[x - 1][y - 1], self.chess_map[x - 2][y - 2]]
-    #                 goal = list_chess.count(self.color_flag)
-    #                 self.machine_goal.append(goal)
-    #             except Exception as e:
-    #                 print(e)
-    #             try:
-    #                 list_chess = [self.chess_map[x][y], self.chess_map[x + 1][y + 1], self.chess_map[x - 1][y - 1],
-    #                               self.chess_map[x - 2][y - 2], self.chess_map[x - 3][y - 3]]
-    #                 goal = list_chess.count(self.color_flag)
-    #                 self.machine_goal.append(goal)
-    #             except Exception:
-    #                 print(e)
-    #
-    #             try:
-    #                 list_chess = [self.chess_map[x][y], self.chess_map[x - 1][y - 1], self.chess_map[x - 2][y - 2],
-    #                               self.chess_map[x - 3][y - 3], self.chess_map[x - 4][y - 4]]
-    #                 goal = list_chess.count(self.color_flag)
-    #                 self.machine_goal.append(goal)
-    #             except Exception as e:
-    #                 print(e)
+            j -= 1
 
+        # 左下
+        for i in range(x,x-5,-1):
+            if i<=0 or j>=19:
+                break
+            if self.chess_map[i][j] is not None:
+                if self.chess_map[i][j].color==color:
+                    chess_score[3] +=1
+                else:
+                    break
 
+            else:
+                blank_score[3] += 1
+                break
+            j += 1
 
+        # 右上
+        for i in range(x+1, x+5):
+            if i >= 19 or j <= 0:
+                break
+            if self.chess_map[i][j] is not None:
+                if self.chess_map[i][j].color == color:
+                    chess_score[3] += 1
+                else:
+                    break
+
+            else:
+                blank_score[3] += 1
+                break
+            j -= 1
+
+        for score in chess_score:
+            if score > 4:
+                return 100
+        for i in range(0,len(blank_score)):
+            if blank_score[i] == 0:
+                blank_score[i] -= 20
+
+        result = [a+b for a,b in zip(chess_score,blank_score)]
+        return max(result)
 
 
 
