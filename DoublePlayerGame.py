@@ -23,14 +23,17 @@ class Chessman(QLabel):
         self.setFixedSize(self.pic.size())
 
 
-    def move(self, a0: QtCore.QPoint):
+    def move(self, pos_x,pos_y):
 
-        self.x, self.y = self.adjust_point(a0)
+        self.x, self.y = self.adjust_point(pos_x,pos_y)
         super().move(self.x - 15, self.y - 15)
 
-    def adjust_point(self, pos):
-        pos_x = pos.x()
-        pos_y = pos.y()
+
+
+
+
+    def adjust_point(self, pos_x,pos_y):
+
         true_point = []
 
         for i in range(50, 50 + 18 * 30 + 1, 30):
@@ -118,6 +121,21 @@ class DoublePlayerGame(QWidget):
                            'source/认输按钮_press.png', parent=self)
         self.gg.move(650, 400)
 
+
+
+
+        self.focus_Point=Chessman(color='white',parent=self)
+        self.focus_Point.pic=QPixmap('source/标识.png')
+        self.focus_Point.setPixmap(self.focus_Point.pic)
+        self.focus_Point.setFixedSize(self.focus_Point.pic.size())
+        self.focus_Point.hide()
+
+
+
+
+
+
+
         # 绑定返回按钮点击信号和槽函数
 
         self.return_to_main.clicked.connect(self.goBack)
@@ -140,6 +158,7 @@ class DoublePlayerGame(QWidget):
                 print('悔棋')
                 m=self.history_chess.pop()
                 m.close()
+                self.focus_Point.hide()
                 self.chess_map[m.map_point_x][m.map_point_y] = None
                 if self.color_flag==1:
                     self.color_flag=0
@@ -162,12 +181,14 @@ class DoublePlayerGame(QWidget):
             self.win_lbl=WinLabel(color='white',parent=self)
             self.win_lbl.move(100, 100)
             self.win_lbl.show()
+            self.focus_Point.hide()
             self.st_over=True
         else:
             print("白棋认输 黑棋胜")
             self.win_lbl = WinLabel(color='black', parent=self)
             self.win_lbl.move(100, 100)
             self.win_lbl.show()
+            self.focus_Point.hide()
             self.st_over = True
 
 
@@ -185,15 +206,9 @@ class DoublePlayerGame(QWidget):
 
 
         if self.color_flag == 0:
-
-
-
             self.chessman = Chessman(color='black', parent=self)
-
             self.color_flag = 1
         else:
-
-
             self.chessman = Chessman(color='white', parent=self)
             self.color_flag = 0
 
@@ -204,7 +219,9 @@ class DoublePlayerGame(QWidget):
             return
         if pos == None:
             return
-        self.chessman.move(pos)
+        pos_x = pos.x()
+        pos_y = pos.y()
+        self.chessman.move(pos_x,pos_y)
         self.chessman.map_point_x = (self.chessman.y - 50) // 30
         self.chessman.map_point_y = (self.chessman.x - 50) // 30
         #      此时:0是白色
@@ -215,9 +232,14 @@ class DoublePlayerGame(QWidget):
             else:
                 self.color_flag = 1
             return
-        self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.color_flag
-
+        self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.chessman
         self.chessman.show()
+        print(self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y].color)
+
+        # 显示标识
+        self.focus_Point.move(pos_x,pos_y)
+        self.focus_Point.show()
+        self.focus_Point.raise_()
 
         if self.color_flag == 1:
             self.player.pic = QPixmap('source/白手.png')
@@ -229,22 +251,10 @@ class DoublePlayerGame(QWidget):
         self.player.show()
 
         self.history_chess.append(self.chessman)
+        print(self.chessman.color)
+        self.showWin()
 
-        if self.whoIsWiner(self.chessman)==True:
-            if self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y]==0:
-                self.win_lbl=WinLabel(color='white',parent=self)
-                self.win_lbl.move(100,100)
-                print('白棋 胜利')
-                self.win_lbl.show()
-                self.st_over=True
-            elif self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y]==1:
-                self.win_lbl=WinLabel(color='black',parent=self)
-                self.win_lbl.move(100,100)
-                self.win_lbl.show()
-                print('黑棋 胜利')
-                self.st_over = True
 
-        print(self.chess_map)
 
     # 棋子坐标转换，棋子坐标判断
     # 如果返回None则不是一个有效位置，
@@ -268,164 +278,185 @@ class DoublePlayerGame(QWidget):
 
         return pos
 
-    # def adjust_point(self, pos):
-    #     pos_x = pos.x()
-    #     pos_y = pos.y()
-    #     true_point = []
-    #
-    #     for i in range(50, 50 + 18 * 30 + 1):
-    #         for j in range(50, 50 + 18 * 30 + 1):
-    #             t_temp = (i, j)
-    #             true_point.append(t_temp)
-    #             i = i + 30
-    #             j = j + 30
-    #     for s in true_point:
-    #         if abs(s[0] - pos_x) < 15 and abs(s[1] - pos_y) < 15:
-    #             return s[0], s[1]
-    #         if abs(s[0] - pos_x) == 15:
-    #             pos_x = pos_x - 1
-    #             continue
-    #         if abs(s[1] - pos_y) == 15:
-    #             pos_y = pos_y - 1
-    #             continue
+    def showWin(self):
+        if self.whoIsWiner(self.chessman) == True:
+            if self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y].color == 'white':
+                self.win_lbl = WinLabel(color='white', parent=self)
+                self.win_lbl.move(100, 100)
+                print('白棋 胜利')
+                self.win_lbl.show()
+                self.st_over = True
+            elif self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y].color == 'black':
+                self.win_lbl = WinLabel(color='black', parent=self)
+                self.win_lbl.move(100, 100)
+                self.win_lbl.show()
+                print('黑棋 胜利')
+                self.st_over = True
 
     def whoIsWiner(self, chessman):
         x = chessman.map_point_x
         y = chessman.map_point_y
 
-        #横向
+        # 横向
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x][y+1],self.chess_map[x][y+2],self.chess_map[x][y+3],self.chess_map[x][y+4]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x][y + 1].color, self.chess_map[x][y + 2].color,
+                          self.chess_map[x][y + 3].color, self.chess_map[x][y + 4].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x][y+1],self.chess_map[x][y+2],self.chess_map[x][y+3],self.chess_map[x][y-1]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x][y + 1].color, self.chess_map[x][y + 2].color,
+                          self.chess_map[x][y + 3].color, self.chess_map[x][y - 1].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x][y+1],self.chess_map[x][y+2],self.chess_map[x][y-1],self.chess_map[x][y-2]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x][y + 1].color, self.chess_map[x][y + 2].color,
+                          self.chess_map[x][y - 1].color, self.chess_map[x][y - 2].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x][y+1],self.chess_map[x][y-1],self.chess_map[x][y-2],self.chess_map[x][y-3]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x][y + 1].color, self.chess_map[x][y - 1].color,
+                          self.chess_map[x][y - 2].color, self.chess_map[x][y - 3].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x][y-1],self.chess_map[x][y-2],self.chess_map[x][y-3],self.chess_map[x][y-4]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x][y - 1].color, self.chess_map[x][y - 2].color,
+                          self.chess_map[x][y - 3].color, self.chess_map[x][y - 4].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
-
-
 
         # 竖向-----------------------------------------------------------------------------------------
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y],self.chess_map[x+2][y],self.chess_map[x+3][y],self.chess_map[x+4][y]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y].color, self.chess_map[x + 2][y].color,
+                          self.chess_map[x + 3][y].color, self.chess_map[x + 4][y].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y],self.chess_map[x+2][y],self.chess_map[x+3][y],self.chess_map[x-1][y]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y].color, self.chess_map[x + 2][y].color,
+                          self.chess_map[x + 3][y].color, self.chess_map[x - 1][y].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y],self.chess_map[x+2][y],self.chess_map[x-1][y],self.chess_map[x-2][y]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y].color, self.chess_map[x + 2][y].color,
+                          self.chess_map[x - 1][y].color, self.chess_map[x - 2][y].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y],self.chess_map[x-1][y],self.chess_map[x-2][y],self.chess_map[x-3][y]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y].color, self.chess_map[x - 1][y].color,
+                          self.chess_map[x - 2][y].color, self.chess_map[x - 3][y].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
 
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x-1][y],self.chess_map[x-2][y],self.chess_map[x-3][y],self.chess_map[x-4][y]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y].color, self.chess_map[x - 2][y].color,
+                          self.chess_map[x - 3][y].color, self.chess_map[x - 4][y].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
 
         # 斜降--------------------------------------------------------------------------------------------------------------
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y+1],self.chess_map[x+2][y+2],self.chess_map[x+3][y+3],self.chess_map[x+4][y+4]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x + 2][y + 2].color,
+                          self.chess_map[x + 3][y + 3].color, self.chess_map[x + 4][y + 4].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y+1],self.chess_map[x+2][y+2],self.chess_map[x+3][y+3],self.chess_map[x-1][y-1]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x + 2][y + 2].color,
+                          self.chess_map[x + 3][y + 3].color, self.chess_map[x - 1][y - 1].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y+1],self.chess_map[x+2][y+2],self.chess_map[x-1][y-1],self.chess_map[x-2][y-2]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x + 2][y + 2].color,
+                          self.chess_map[x - 1][y - 1].color, self.chess_map[x - 2][y - 2].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y+1],self.chess_map[x-1][y-1],self.chess_map[x-2][y-2],self.chess_map[x-3][y-3]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x - 1][y - 1].color,
+                          self.chess_map[x - 2][y - 2].color, self.chess_map[x - 3][y - 3].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
 
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x-1][y-1],self.chess_map[x-2][y-2],self.chess_map[x-3][y-3],self.chess_map[x-4][y-4]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y - 1].color,
+                          self.chess_map[x - 2][y - 2].color,
+                          self.chess_map[x - 3][y - 3].color, self.chess_map[x - 4][y - 4].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
-
-
 
         #  斜升-----------------------------------------------------------------------------------------------------------------------
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x-1][y+1],self.chess_map[x-2][y+2],self.chess_map[x-3][y+3],self.chess_map[x-4][y+4]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x - 2][y + 2].color,
+                          self.chess_map[x - 3][y + 3].color, self.chess_map[x - 4][y + 4].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x-1][y+1],self.chess_map[x-2][y+2],self.chess_map[x-3][y+3],self.chess_map[x+1][y-1]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x - 2][y + 2].color,
+                          self.chess_map[x - 3][y + 3].color, self.chess_map[x + 1][y - 1].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x-1][y+1],self.chess_map[x-2][y+2],self.chess_map[x+1][y-1],self.chess_map[x+2][y-2]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x - 2][y + 2].color,
+                          self.chess_map[x + 1][y - 1].color, self.chess_map[x + 2][y - 2].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x-1][y+1],self.chess_map[x+1][y-1],self.chess_map[x+2][y-2],self.chess_map[x+3][y-3]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x + 1][y - 1].color,
+                          self.chess_map[x + 2][y - 2].color, self.chess_map[x + 3][y - 3].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess=[self.chess_map[x][y],self.chess_map[x+1][y-1],self.chess_map[x+2][y-2],self.chess_map[x+3][y-3],self.chess_map[x+4][y-4]]
-            if len(set(list_chess))==1:
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y - 1].color,
+                          self.chess_map[x + 2][y - 2].color,
+                          self.chess_map[x + 3][y - 3].color, self.chess_map[x + 4][y - 4].color]
+            if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
+
 
 if __name__ == '__main__':
     import cgitb
