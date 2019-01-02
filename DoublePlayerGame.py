@@ -121,6 +121,20 @@ class DoublePlayerGame(QWidget):
                            'source/认输按钮_press.png', parent=self)
         self.gg.move(650, 400)
 
+
+
+
+        self.focus_Point=Chessman(color='white',parent=self)
+        self.focus_Point.pic=QPixmap('source/标识.png')
+        self.focus_Point.setPixmap(self.focus_Point.pic)
+        self.focus_Point.setFixedSize(self.focus_Point.pic.size())
+
+
+
+
+
+
+
         # 绑定返回按钮点击信号和槽函数
 
         self.return_to_main.clicked.connect(self.goBack)
@@ -143,6 +157,7 @@ class DoublePlayerGame(QWidget):
                 print('悔棋')
                 m=self.history_chess.pop()
                 m.close()
+                self.focus_Point.hide()
                 self.chess_map[m.map_point_x][m.map_point_y] = None
                 if self.color_flag==1:
                     self.color_flag=0
@@ -165,12 +180,14 @@ class DoublePlayerGame(QWidget):
             self.win_lbl=WinLabel(color='white',parent=self)
             self.win_lbl.move(100, 100)
             self.win_lbl.show()
+            self.focus_Point.hide()
             self.st_over=True
         else:
             print("白棋认输 黑棋胜")
             self.win_lbl = WinLabel(color='black', parent=self)
             self.win_lbl.move(100, 100)
             self.win_lbl.show()
+            self.focus_Point.hide()
             self.st_over = True
 
 
@@ -215,8 +232,13 @@ class DoublePlayerGame(QWidget):
                 self.color_flag = 1
             return
         self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.color_flag
-
         self.chessman.show()
+
+
+        # 显示标识
+        self.focus_Point.move(pos_x,pos_y)
+        self.focus_Point.show()
+        self.focus_Point.raise_()
 
         if self.color_flag == 1:
             self.player.pic = QPixmap('source/白手.png')

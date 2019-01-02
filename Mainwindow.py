@@ -71,8 +71,6 @@ class MainWindow(QWidget):
             print(e)
 
 
-
-
 if __name__ == '__main__':
     import cgitb
 
