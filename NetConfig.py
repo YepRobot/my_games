@@ -105,9 +105,10 @@ class NetServer(QObject):
         threading.Thread(target=self.__acceptConnect).start()
 
     def __acceptConnect(self):
-        self.cli_socket, cli_addr = self.socket.accept()
         while True:
             try:
+                self.cli_socket, cli_addr = self.socket.accept()
+
                 data = self.cli_socket.recv(4096).decode()
                 self.msg_signal.emit(data)
             except:

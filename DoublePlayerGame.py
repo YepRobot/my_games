@@ -147,6 +147,7 @@ class DoublePlayerGame(QWidget):
 
     def goBack(self):
         self.backSignal.emit()
+        self.close()
     def goStart(self):
         self.startSignal.emit()
         self.close()

@@ -6,8 +6,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from my_games.MyButton import MyButton
 from my_games.DoublePlayerGame import DoublePlayerGame
+from my_games.NetPlayerGame import NetPlayerGame
 from my_games.SinglePlayerGame import SinglePlayerGame
 from my_games.NetConfig import *
+
 import sys
 
 
@@ -68,7 +70,19 @@ class MainWindow(QWidget):
         self.close()
 
     def recieveConfig(self, nettype, name, ip, port):
+        self.netConfig.hide()
         print("net config", nettype, name, ip, port)
+        if nettype == 'client':
+            net_object = NetClient(name, ip, port)
+        elif nettype == 'server':
+
+            net_object = NetServer(name, ip, port)
+        else:
+            return
+        self.netPlayerGame = NetPlayerGame(net_object=net_object)
+        self.netPlayerGame.backSignal.connect(self.show)
+        self.close()
+        self.netPlayerGame.show()
 
     def showMain(self):
         try:
@@ -79,6 +93,11 @@ class MainWindow(QWidget):
         try:
             self.show()
             self.single_player_game.close()
+        except Exception as e:
+            print(e)
+        try:
+            self.show()
+            self.netPlayerGame.close()
         except Exception as e:
             print(e)
 
