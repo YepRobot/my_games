@@ -7,6 +7,7 @@ from PyQt5.QtGui import *
 from my_games.MyButton import MyButton
 from my_games.DoublePlayerGame import DoublePlayerGame
 from my_games.SinglePlayerGame import SinglePlayerGame
+from my_games.NetConfig import *
 import sys
 
 
@@ -41,6 +42,7 @@ class MainWindow(QWidget):
 
         self.btn2.clicked.connect(self.startDoubleGame)
         self.btn1.clicked.connect(self.startSingleGame)
+        self.btn3.clicked.connect(self.startNetGame)
 
     def startDoubleGame(self):
         #  构建双人对战游戏的界面
@@ -57,6 +59,16 @@ class MainWindow(QWidget):
         self.single_player_game.show()
         self.close()
 
+    def startNetGame(self):
+
+        self.netConfig = NetConfigWidget()
+        self.netConfig.show()
+        self.netConfig.exit_signal.connect(self.show)
+        self.netConfig.config_signal.connect(self.recieveConfig)
+        self.close()
+
+    def recieveConfig(self, nettype, name, ip, port):
+        print("net config", nettype, name, ip, port)
 
     def showMain(self):
         try:

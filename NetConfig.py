@@ -1,14 +1,16 @@
 # -*- coding:utf-8 -*-
 # @author: alex  
 # @time: 2019/1/2 16:43
-
-
+from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+import socket
+import threading
 
 
 class NetConfigWidget(QWidget):
-    config_signal = pyqtSignal([str, str, str, str])
+    config_signal = pyqtSignal([str, str, str, str])  # 连接属性
+    exit_signal = pyqtSignal()  # 退出信号
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -49,6 +51,73 @@ class NetConfigWidget(QWidget):
 
     def client_btn_slot(self):
         self.config_signal.emit('client', self.name_input.text(), self.ip_input.text(), self.port_input.text())
+
+    def closeEvent(self, a0: QtGui.QCloseEvent):
+        self.close()
+        self.exit_signal.emit()
+
+
+class NetClient(QObject):  # QObject是Qt中最基础的类
+
+    msg_signal = pyqtSignal([str])
+
+    def __init__(self, name, ip, port):
+        super().__init__()
+        self.name = name
+        self.ip = ip
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    def buildConnect(self):
+
+        self.socket.connect((self.ip, int(self.port)))
+        threading.Thread(target=self.recv).start()  # 启动线程接收数据
+
+        pass
+
+    def send(self, data):
+        self.socket.send(data.encode())
+        pass
+
+    def recv(self):
+        while True:
+            try:
+                data = self.socket.recv(4096).decode()
+                self.msg_signal.emit(data)
+            except:
+                pass
+
+
+class NetServer(QObject):
+    msg_signal = pyqtSignal([str])
+
+    def __init__(self, name, ip, port):
+        super().__init__()
+        self.name = name
+        self.ip = ip
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.cli_socket = None
+
+    def buildConnect(self):
+        self.socket.bind(('', int(self.port)))
+        self.socket.listen(1)
+        threading.Thread(target=self.__acceptConnect).start()
+
+    def __acceptConnect(self):
+        self.cli_socket, cli_addr = self.socket.accept()
+        while True:
+            try:
+                data = self.cli_socket.recv(4096).decode()
+                self.msg_signal.emit(data)
+            except:
+                pass
+
+    def send(self, data):
+        if self.cli_socket == None:
+            return
+        self.cli_socket.send(data.encode())
+
 
 if __name__ == '__main__':
     import sys
