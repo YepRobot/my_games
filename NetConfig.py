@@ -61,8 +61,9 @@ class NetClient(QObject):  # QObject是Qt中最基础的类
 
     msg_signal = pyqtSignal([str])
 
-    def __init__(self, name, ip, port):
+    def __init__(self,nettype, name, ip, port):
         super().__init__()
+        self.nettype=nettype
         self.name = name
         self.ip = ip
         self.port = port
@@ -91,8 +92,9 @@ class NetClient(QObject):  # QObject是Qt中最基础的类
 class NetServer(QObject):
     msg_signal = pyqtSignal([str])
 
-    def __init__(self, name, ip, port):
+    def __init__(self,nettype, name, ip, port):
         super().__init__()
+        self.nettype=nettype
         self.name = name
         self.ip = ip
         self.port = port

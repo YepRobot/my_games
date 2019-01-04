@@ -15,14 +15,11 @@ import random
 
 
 class SinglePlayerGame(QWidget):
-
     # 信号量
     backSignal = pyqtSignal()  # 返回按钮
     startSignal = pyqtSignal()  # 开始按钮
     undoSignal = pyqtSignal()  # 悔棋按钮
     ggSignal = pyqtSignal()  # 认输按钮
-
-
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -35,7 +32,7 @@ class SinglePlayerGame(QWidget):
         self.st_over = False
         self.history_chess = []
         # 白子得分
-        self.machine_goal=[]
+        self.machine_goal = []
 
         self.player = QLabel(self)
         self.player.pic = QPixmap('source/黑手.png')
@@ -190,10 +187,8 @@ class SinglePlayerGame(QWidget):
         self.autoDown()
         self.showWin()
 
-
         print(self.chessman.color)
         print(self.color_flag)
-
 
         print(self.chess_map)
 
@@ -226,12 +221,14 @@ class SinglePlayerGame(QWidget):
                 print('白棋 胜利')
                 self.win_lbl.show()
                 self.st_over = True
+                return
             elif self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y].color == 'black':
                 self.win_lbl = WinLabel(color='black', parent=self)
                 self.win_lbl.move(100, 100)
                 self.win_lbl.show()
                 print('黑棋 胜利')
                 self.st_over = True
+                return
 
     def whoIsWiner(self, chessman):
         x = chessman.map_point_x
@@ -314,28 +311,32 @@ class SinglePlayerGame(QWidget):
 
         # 斜降--------------------------------------------------------------------------------------------------------------
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color, self.chess_map[x + 2][y + 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x + 2][y + 2].color,
                           self.chess_map[x + 3][y + 3].color, self.chess_map[x + 4][y + 4].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color, self.chess_map[x + 2][y + 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x + 2][y + 2].color,
                           self.chess_map[x + 3][y + 3].color, self.chess_map[x - 1][y - 1].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color, self.chess_map[x + 2][y + 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x + 2][y + 2].color,
                           self.chess_map[x - 1][y - 1].color, self.chess_map[x - 2][y - 2].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color, self.chess_map[x - 1][y - 1].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y + 1].color,
+                          self.chess_map[x - 1][y - 1].color,
                           self.chess_map[x - 2][y - 2].color, self.chess_map[x - 3][y - 3].color]
             if len(set(list_chess)) == 1:
                 return True
@@ -343,7 +344,8 @@ class SinglePlayerGame(QWidget):
             print("error")
 
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y - 1].color, self.chess_map[x - 2][y - 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y - 1].color,
+                          self.chess_map[x - 2][y - 2].color,
                           self.chess_map[x - 3][y - 3].color, self.chess_map[x - 4][y - 4].color]
             if len(set(list_chess)) == 1:
                 return True
@@ -352,46 +354,45 @@ class SinglePlayerGame(QWidget):
 
         #  斜升-----------------------------------------------------------------------------------------------------------------------
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color, self.chess_map[x - 2][y + 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x - 2][y + 2].color,
                           self.chess_map[x - 3][y + 3].color, self.chess_map[x - 4][y + 4].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color, self.chess_map[x - 2][y + 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x - 2][y + 2].color,
                           self.chess_map[x - 3][y + 3].color, self.chess_map[x + 1][y - 1].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color, self.chess_map[x - 2][y + 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x - 2][y + 2].color,
                           self.chess_map[x + 1][y - 1].color, self.chess_map[x + 2][y - 2].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color, self.chess_map[x + 1][y - 1].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x - 1][y + 1].color,
+                          self.chess_map[x + 1][y - 1].color,
                           self.chess_map[x + 2][y - 2].color, self.chess_map[x + 3][y - 3].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
         try:
-            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y - 1].color, self.chess_map[x + 2][y - 2].color,
+            list_chess = [self.chess_map[x][y].color, self.chess_map[x + 1][y - 1].color,
+                          self.chess_map[x + 2][y - 2].color,
                           self.chess_map[x + 3][y - 3].color, self.chess_map[x + 4][y - 4].color]
             if len(set(list_chess)) == 1:
                 return True
         except Exception:
             print("error")
-
-
-
-
-
-
 
     def getPointScore(self, x, y, color):
         '''
@@ -559,8 +560,6 @@ class SinglePlayerGame(QWidget):
         # color_score *= 5
         return max([x + y for x, y in zip(color_score_plus, blank_score_plus)])
 
-
-
     def getPoint(self):
         '''
         返回落子位置
@@ -611,39 +610,38 @@ class SinglePlayerGame(QWidget):
         x = chess_index % 19
 
         return QPoint(x, y)
-    
+
     def autoDown(self):
         '''
         自动落子
         :return:
-        '''
+       '''
         point = self.getPoint()
 
         # 注意：x,y坐标对应
         chess_index = (point.y(), point.x())  # 棋子在棋盘中的下标
-        pos = QPoint(50+point.x()*30, 50+point.y()*30) # 棋子在棋盘中的坐标
+        pos = QPoint(50 + point.x() * 30, 50 + point.y() * 30)  # 棋子在棋盘中的坐标
         pos_x = pos.x()
         pos_y = pos.y()
 
         self.chessman = Chessman(color=self.color_flag, parent=self)
-        #self.chessman.setIndex(chess_index[1], chess_index[0])
-        self.chessman.move(pos_x,pos_y)
+        # self.chessman.setIndex(chess_index[1], chess_index[0])
+        self.chessman.move(pos_x, pos_y)
         self.chessman.show()  # 显示棋子
 
         # 显示标识
-        self.focus_Point.move(pos_x,pos_y)
+        self.focus_Point.move(pos_x, pos_y)
         self.focus_Point.show()
         self.focus_Point.raise_()
 
+        self.chessman.map_point_x = chess_index[0]
+        self.chessman.map_point_y = chess_index[1]
+        print("zheshi" + str(self.chessman.map_point_x) + str(self.chessman.map_point_y))
 
-        self.chessman.map_point_x=chess_index[0]
-        self.chessman.map_point_y=chess_index[1]
-        print("zheshi"+str(self.chessman.map_point_x)+str(self.chessman.map_point_y))
-
-        if self.chessman.color==0:
-            self.chessman.color='black'
+        if self.chessman.color == 0:
+            self.chessman.color = 'black'
         else:
-            self.chessman.color='white'
+            self.chessman.color = 'white'
 
         self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.chessman
 
@@ -657,32 +655,30 @@ class SinglePlayerGame(QWidget):
             self.color_flag = 0
         # 判断输赢
 
-
-
-    def score(self,x,y,color):
-        blank_score = [0,0,0,0]
-        chess_score = [0,0,0,0]
+    def score(self, x, y, color):
+        blank_score = [0, 0, 0, 0]
+        chess_score = [0, 0, 0, 0]
 
         # 右方向
-        for i in range(x,x+5):
+        for i in range(x, x + 5):
             if i >= 19:
                 break
             if self.chess_map[i][y] is not None:
-                if self.chess_map[i][y].color==color:
-                    chess_score[0] +=1
+                if self.chess_map[i][y].color == color:
+                    chess_score[0] += 1
                 else:
                     break
 
             else:
-                blank_score[0]+=1
+                blank_score[0] += 1
                 break
 
         # 左方向
-        for i in range(x-1,x-5,-1):
-            if i <=0:
+        for i in range(x - 1, x - 5, -1):
+            if i <= 0:
                 break
             if self.chess_map[i][y] is not None:
-                if self.chess_map[i][y].color ==color:
+                if self.chess_map[i][y].color == color:
                     chess_score[0] += 1
                 else:
                     break
@@ -691,7 +687,7 @@ class SinglePlayerGame(QWidget):
                 break
 
         # 下方向
-        for j in range(y, y+5):
+        for j in range(y, y + 5):
             if j >= 19:
                 break
             if self.chess_map[x][j] is not None:
@@ -704,7 +700,7 @@ class SinglePlayerGame(QWidget):
                 break
 
         # 上方向
-        for i in range(y- 1, y - 5, -1):
+        for i in range(y - 1, y - 5, -1):
             if i <= 0:
                 break
             if self.chess_map[x][j] is not None:
@@ -717,27 +713,27 @@ class SinglePlayerGame(QWidget):
                 break
 
         # 右下
-        for i in range(x,x+5):
-            if i >= 19 or j>=19:
+        for i in range(x, x + 5):
+            if i >= 19 or j >= 19:
                 break
             if self.chess_map[i][j] is not None:
-                if self.chess_map[i][j].color==color:
-                    chess_score[2] +=1
+                if self.chess_map[i][j].color == color:
+                    chess_score[2] += 1
                 else:
                     break
 
             else:
-                blank_score[2]+=1
+                blank_score[2] += 1
                 break
 
             j += 1
 
         # 左上
-        for i in range(x-1,x-5,-1):
-            if i <=0 or j<=0:
+        for i in range(x - 1, x - 5, -1):
+            if i <= 0 or j <= 0:
                 break
             if self.chess_map[i][j] is not None:
-                if self.chess_map[i][j].color ==color:
+                if self.chess_map[i][j].color == color:
                     chess_score[2] += 1
                 else:
                     break
@@ -745,16 +741,15 @@ class SinglePlayerGame(QWidget):
                 blank_score[2] += 1
                 break
 
-
             j -= 1
 
         # 左下
-        for i in range(x,x-5,-1):
-            if i<=0 or j>=19:
+        for i in range(x, x - 5, -1):
+            if i <= 0 or j >= 19:
                 break
             if self.chess_map[i][j] is not None:
-                if self.chess_map[i][j].color==color:
-                    chess_score[3] +=1
+                if self.chess_map[i][j].color == color:
+                    chess_score[3] += 1
                 else:
                     break
 
@@ -764,7 +759,7 @@ class SinglePlayerGame(QWidget):
             j += 1
 
         # 右上
-        for i in range(x+1, x+5):
+        for i in range(x + 1, x + 5):
             if i >= 19 or j <= 0:
                 break
             if self.chess_map[i][j] is not None:
@@ -781,16 +776,12 @@ class SinglePlayerGame(QWidget):
         for score in chess_score:
             if score > 4:
                 return 100
-        for i in range(0,len(blank_score)):
+        for i in range(0, len(blank_score)):
             if blank_score[i] == 0:
                 blank_score[i] -= 20
 
-        result = [a+b for a,b in zip(chess_score,blank_score)]
+        result = [a + b for a, b in zip(chess_score, blank_score)]
         return max(result)
-
-
-
-
 
 
 if __name__ == '__main__':

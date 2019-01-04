@@ -73,10 +73,10 @@ class MainWindow(QWidget):
         self.netConfig.hide()
         print("net config", nettype, name, ip, port)
         if nettype == 'client':
-            net_object = NetClient(name, ip, port)
+            net_object = NetClient(nettype,name, ip, port)
         elif nettype == 'server':
 
-            net_object = NetServer(name, ip, port)
+            net_object = NetServer(nettype,name, ip, port)
         else:
             return
         self.netPlayerGame = NetPlayerGame(net_object=net_object)

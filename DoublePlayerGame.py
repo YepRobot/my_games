@@ -287,12 +287,14 @@ class DoublePlayerGame(QWidget):
                 print('白棋 胜利')
                 self.win_lbl.show()
                 self.st_over = True
+                return
             elif self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y].color == 'black':
                 self.win_lbl = WinLabel(color='black', parent=self)
                 self.win_lbl.move(100, 100)
                 self.win_lbl.show()
                 print('黑棋 胜利')
                 self.st_over = True
+                return
 
     def whoIsWiner(self, chessman):
         x = chessman.map_point_x
