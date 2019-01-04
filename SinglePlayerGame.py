@@ -101,6 +101,10 @@ class SinglePlayerGame(QWidget):
                     self.chess_map[i][j] = None
                     self.focus_Point.hide()
         self.color_flag = 'black'
+        try:
+            self.win_lbl.close()
+        except Exception as e:
+            print(e)
 
     def goUndo(self):
         try:
