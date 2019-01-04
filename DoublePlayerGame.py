@@ -76,10 +76,10 @@ class DoublePlayerGame(QWidget):
         self.resize(760, 650)
         self.setWindowTitle('双人对战')
         self.setWindowIcon(QIcon('source/icon.ico'))
-        self.color_flag = 0
+        self.color_flag = 'black'
 
         self.chess_map = [[None] * 19 for _ in range(19)]
-        self.st_over=False
+        self.st_over=True
         self.history_chess=[]
 
         # 棋手标识
@@ -149,8 +149,20 @@ class DoublePlayerGame(QWidget):
         self.backSignal.emit()
         self.close()
     def goStart(self):
-        self.startSignal.emit()
-        self.close()
+        try:
+            self.win_lbl.close()
+        except Exception as e:
+            print(e)
+        self.st_over = False
+        self.history_chess.clear()
+        for i in range(0, 19):
+            for j in range(0, 19):
+                m = self.chess_map[i][j]
+                if m is not None:
+                    m.close()
+                    self.chess_map[i][j] = None
+                    self.focus_Point.hide()
+        self.color_flag = 'black'
 
     def goUndo(self):
         try:
@@ -161,11 +173,11 @@ class DoublePlayerGame(QWidget):
                 m.close()
                 self.focus_Point.hide()
                 self.chess_map[m.map_point_x][m.map_point_y] = None
-                if self.color_flag==1:
-                    self.color_flag=0
+                if self.color_flag=='black':
+                    self.color_flag='white'
                 else:
-                    self.color_flag=1
-                if self.color_flag == 1:
+                    self.color_flag='black'
+                if self.color_flag == 'white':
                     self.player.pic = QPixmap('source/白手.png')
                 else:
                     self.player.pic = QPixmap('source/黑手.png')
@@ -177,19 +189,19 @@ class DoublePlayerGame(QWidget):
             print(e)
 
     def goGG(self):
-        if self.color_flag==0:
+        if self.st_over == True:
+            return
+        if self.color_flag == 'black':
             print("黑棋认输，白棋胜")
-            self.win_lbl=WinLabel(color='white',parent=self)
+            self.win_lbl = WinLabel(color='white', parent=self)
             self.win_lbl.move(100, 100)
             self.win_lbl.show()
-            self.focus_Point.hide()
-            self.st_over=True
+            self.st_over = True
         else:
             print("白棋认输 黑棋胜")
             self.win_lbl = WinLabel(color='black', parent=self)
             self.win_lbl.move(100, 100)
             self.win_lbl.show()
-            self.focus_Point.hide()
             self.st_over = True
 
 
@@ -206,12 +218,12 @@ class DoublePlayerGame(QWidget):
 
 
 
-        if self.color_flag == 0:
+        if self.color_flag == 'black':
             self.chessman = Chessman(color='black', parent=self)
-            self.color_flag = 1
+            self.color_flag = 'white'
         else:
             self.chessman = Chessman(color='white', parent=self)
-            self.color_flag = 0
+            self.color_flag = 'black'
 
 
 
@@ -242,7 +254,7 @@ class DoublePlayerGame(QWidget):
         self.focus_Point.show()
         self.focus_Point.raise_()
 
-        if self.color_flag == 1:
+        if self.color_flag == 'white':
             self.player.pic = QPixmap('source/白手.png')
         else:
             self.player.pic = QPixmap('source/黑手.png')

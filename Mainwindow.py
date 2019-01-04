@@ -50,14 +50,12 @@ class MainWindow(QWidget):
         #  构建双人对战游戏的界面
         self.double_player_game = DoublePlayerGame()
         self.double_player_game.backSignal.connect(self.showMain)
-        self.double_player_game.startSignal.connect(self.startDoubleGame)
         self.double_player_game.show()
         self.close()
 
     def startSingleGame(self):
         self.single_player_game = SinglePlayerGame()
         self.single_player_game.backSignal.connect(self.showMain)
-        self.single_player_game.startSignal.connect(self.startSingleGame)
         self.single_player_game.show()
         self.close()
 

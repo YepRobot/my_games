@@ -26,10 +26,10 @@ class SinglePlayerGame(QWidget):
         self.resize(760, 650)
         self.setWindowTitle('人机对战')
         self.setWindowIcon(QIcon('source/icon.ico'))
-        self.color_flag = 0
+        self.color_flag = 'black'
 
         self.chess_map = [[None] * 19 for _ in range(19)]
-        self.st_over = False
+        self.st_over = True
         self.history_chess = []
         # 白子得分
         self.machine_goal = []
@@ -87,8 +87,20 @@ class SinglePlayerGame(QWidget):
         self.backSignal.emit()
 
     def goStart(self):
-        self.startSignal.emit()
-        self.close()
+        try:
+            self.win_lbl.close()
+        except Exception as e:
+            print(e)
+        self.st_over = False
+        self.history_chess.clear()
+        for i in range(0, 19):
+            for j in range(0, 19):
+                m = self.chess_map[i][j]
+                if m is not None:
+                    m.close()
+                    self.chess_map[i][j] = None
+                    self.focus_Point.hide()
+        self.color_flag = 'black'
 
     def goUndo(self):
         try:
@@ -105,8 +117,8 @@ class SinglePlayerGame(QWidget):
                 self.chess_map[m.map_point_x][m.map_point_y] = None
                 self.chess_map[n.map_point_x][n.map_point_y] = None
 
-                if self.color_flag == 1:
-                    self.color_flag = 0
+                if self.color_flag == 'black':
+                    self.color_flag = 'white'
                 #     self.player.pic = QPixmap('source/白手.png')
                 # else:
                 #     self.player.pic = QPixmap('source/黑手.png')
@@ -118,7 +130,9 @@ class SinglePlayerGame(QWidget):
             print(e)
 
     def goGG(self):
-        if self.color_flag == 0:
+        if self.st_over==True:
+            return
+        if self.color_flag == 'black':
             print("黑棋认输，白棋胜")
             self.win_lbl = WinLabel(color='white', parent=self)
             self.win_lbl.move(100, 100)
@@ -140,12 +154,12 @@ class SinglePlayerGame(QWidget):
         # mychessman.move(a0.pos())
         # mychessman.show()
 
-        if self.color_flag == 0:
+        if self.color_flag == 'black':
             self.chessman = Chessman(color='black', parent=self)
-            self.color_flag = 1
+            self.color_flag = 'white'
         else:
             self.chessman = Chessman(color='white', parent=self)
-            self.color_flag = 0
+            self.color_flag = 'black'
 
         pos = self.reversePos(a0.pos())
         if self.st_over == True:
@@ -160,10 +174,10 @@ class SinglePlayerGame(QWidget):
         #      此时:0是白色
         #      1是黑色
         if self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] != None:
-            if self.color_flag == 1:
-                self.color_flag = 0
+            if self.color_flag == 'black':
+                self.color_flag = 'white'
             else:
-                self.color_flag = 1
+                self.color_flag = 'black'
             return
         self.chess_map[self.chessman.map_point_x][self.chessman.map_point_y] = self.chessman
         # 显示标识
@@ -616,6 +630,8 @@ class SinglePlayerGame(QWidget):
         自动落子
         :return:
        '''
+        if self.st_over==True:
+            return
         point = self.getPoint()
 
         # 注意：x,y坐标对应
@@ -649,10 +665,10 @@ class SinglePlayerGame(QWidget):
         self.history_chess.append(self.chessman)
 
         # 改变落子颜色
-        if self.color_flag == 0:
-            self.color_flag = 1
+        if self.color_flag == 'white':
+            self.color_flag = 'black'
         else:
-            self.color_flag = 0
+            self.color_flag = 'white'
         # 判断输赢
 
     def score(self, x, y, color):
